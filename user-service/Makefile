@@ -1,0 +1,19 @@
+start_db:
+	docker-compose up -d
+
+stop_db:
+	docker-compose down
+
+migrate:
+	db-migrate up
+
+rollback:
+	db-migrate down
+
+create-migration:
+	db-migrate create $(n) --sql-file
+
+server:
+	yarn dev
+
+.PHONY: start_db stop_db server migrate rollback create-migration
