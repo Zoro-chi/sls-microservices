@@ -58,6 +58,7 @@ export class UserService {
 
 	async UserLogin(event: APIGatewayProxyEventV2) {
 		try {
+			console.log(process.env);
 			const body = await JSON.parse(event.body);
 
 			const input = plainToClass(LoginInput, body);
@@ -65,7 +66,11 @@ export class UserService {
 			if (errors) return ErrorResponse(404, errors);
 
 			const data = await this.repository.findAccount(input.email);
-			const verified = await ValidatePassword(input.password, data.password, data.salt);
+			const verified = await ValidatePassword(
+				input.password,
+				data.password,
+				data.salt
+			);
 			if (!verified) throw new Error("Password is incorrect");
 
 			const token = await GetToken(data);
@@ -103,13 +108,19 @@ export class UserService {
 		const errors = await AppValidationError(input);
 		if (errors) return ErrorResponse(404, errors);
 
-		const { verification_code, expiry } = await this.repository.findAccount(payload.email);
+		const { verification_code, expiry } = await this.repository.findAccount(
+			payload.email
+		);
 
 		// find user account
 		if (verification_code === parseInt(input.code)) {
 			// compare verification code and expiry
 			const currentTime = new Date();
-			const timeDiff = await TimeDifference(expiry, currentTime.toISOString(), "m");
+			const timeDiff = await TimeDifference(
+				expiry,
+				currentTime.toISOString(),
+				"m"
+			);
 			console.log("Time difference: ", timeDiff);
 			if (timeDiff > 0) {
 				console.log("Verified successfully");
@@ -118,7 +129,11 @@ export class UserService {
 				return ErrorResponse(403, "verification code expired");
 			}
 			// update user account
-			await this.repository.updateVerificationCode(payload.user_id, 0, new Date());
+			await this.repository.updateVerificationCode(
+				payload.user_id,
+				0,
+				new Date()
+			);
 		}
 		return SuccessResponse({ message: "user verified" });
 	}
@@ -135,7 +150,10 @@ export class UserService {
 			const errors = await AppValidationError(input);
 			if (errors) return ErrorResponse(404, errors);
 
-			const result = await this.repository.createProfile(payload.user_id, input);
+			const result = await this.repository.createProfile(
+				payload.user_id,
+				input
+			);
 
 			return SuccessResponse({ message: "Profile created" });
 		} catch (error) {

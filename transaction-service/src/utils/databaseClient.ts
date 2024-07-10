@@ -1,11 +1,13 @@
 import { Client } from "pg";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 export const DBClient = () => {
 	return new Client({
-		user: "transaction_service",
-		host: "ec2-3-76-203-147.eu-central-1.compute.amazonaws.com",
-		database: "transaction_service",
-		password: "transaction_service#23",
-		port: 5432,
+		user: process.env.DB_USER,
+		host: process.env.DB_HOST,
+		database: process.env.DB_NAME,
+		password: process.env.DB_PASS,
+		port: parseInt(process.env.DB_PORT || "5432"),
 	});
 };
