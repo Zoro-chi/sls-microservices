@@ -1,64 +1,35 @@
-import { APIGatewayProxyEventV2 } from "aws-lambda";
-import { UserService } from "../service/userService";
-import { ErrorResponse } from "../utility/response";
 import { container } from "tsyringe";
+import { APIGatewayProxyEventV2 } from "aws-lambda";
 
-const service = container.resolve(UserService);
+import { UserRepository } from "../repository/userRepository";
+import { UserService } from "../service/userService";
 
-export const Signup = (event: APIGatewayProxyEventV2) => {
+const service = new UserService(new UserRepository());
+
+export const SignUp = (event: APIGatewayProxyEventV2) => {
 	return service.CreateUser(event);
 };
 
-export const Login = async (event: APIGatewayProxyEventV2) => {
+export const Login = (event: APIGatewayProxyEventV2) => {
 	return service.UserLogin(event);
 };
 
-export const Verify = async (event: APIGatewayProxyEventV2) => {
-	const httpMethod = event.requestContext.http.method.toUpperCase();
-	if (httpMethod === "POST") {
-		return service.VerifyUser(event);
-	} else if (httpMethod === "GET") {
-		return service.GetVerificationToken(event);
-	} else {
-		return service.ResponseWithError(event);
-	}
+export const GetVerificationCode = (event: APIGatewayProxyEventV2) => {
+	return service.GetVerificationToken(event);
 };
 
-export const Profile = async (event: APIGatewayProxyEventV2) => {
-	const httpMethod = event.requestContext.http.method.toUpperCase();
-	if (httpMethod === "POST") {
-		return service.CreateProfile(event);
-	} else if (httpMethod === "PUT") {
-		return service.UpdateProfile(event);
-	} else if (httpMethod === "GET") {
-		return service.GetProfile(event);
-	} else {
-		return service.ResponseWithError(event);
-	}
+export const Verify = (event: APIGatewayProxyEventV2) => {
+	return service.VerifyUser(event);
 };
 
-export const Cart = async (event: APIGatewayProxyEventV2) => {
-	const httpMethod = event.requestContext.http.method.toUpperCase();
-	if (httpMethod === "POST") {
-		return service.CreateCart(event);
-	} else if (httpMethod === "PUT") {
-		return service.UpdateCart(event);
-	} else if (httpMethod === "GET") {
-		return service.GetCart(event);
-	} else {
-		return service.ResponseWithError(event);
-	}
+export const CreateProfile = (event: APIGatewayProxyEventV2) => {
+	return service.CreateProfile(event);
 };
 
-export const Payment = async (event: APIGatewayProxyEventV2) => {
-	const httpMethod = event.requestContext.http.method.toUpperCase();
-	if (httpMethod === "POST") {
-		return service.CreatePayment(event);
-	} else if (httpMethod === "PUT") {
-		return service.UpdatePayment(event);
-	} else if (httpMethod === "GET") {
-		return service.GetPayment(event);
-	} else {
-		return service.ResponseWithError(event);
-	}
+export const EditProfile = (event: APIGatewayProxyEventV2) => {
+	return service.UpdateProfile(event);
+};
+
+export const GetProfile = (event: APIGatewayProxyEventV2) => {
+	return service.GetProfile(event);
 };

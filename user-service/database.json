@@ -1,9 +1,9 @@
 {
 	"dev": {
 		"driver": "pg",
-		"user": "root",
-		"password": "root",
-		"host": "localhost",
+		"user": "user_service",
+		"password": "user_service#23",
+		"host": "ec2-3-76-203-147.eu-central-1.compute.amazonaws.com",
 		"database": "user_service"
 	}
 }

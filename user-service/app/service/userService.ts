@@ -14,7 +14,7 @@ import {
 	ValidatePassword,
 	VerifyToken,
 } from "../utility/password";
-import { GenerateAccessToken, SendVerificationCode } from "../utility/notification";
+import { GenerateAccessToken } from "../utility/notification";
 import { VerificationInput } from "../models/dto/UpdateInput";
 import { TimeDifference } from "../utility/dateHelper";
 import { ProfileInput } from "../models/dto/AddressInput";
@@ -177,17 +177,6 @@ export class UserService {
 			console.log(error);
 			return ErrorResponse(500, error);
 		}
-	}
-
-	//* Cart
-	async CreateCart(event: APIGatewayProxyEventV2) {
-		return SuccessResponse({ message: "response from create cart" });
-	}
-	async GetCart(event: APIGatewayProxyEventV2) {
-		return SuccessResponse({ message: "response from get cart" });
-	}
-	async UpdateCart(event: APIGatewayProxyEventV2) {
-		return SuccessResponse({ message: "response from update cart" });
 	}
 
 	//* Payment

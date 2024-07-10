@@ -5,7 +5,7 @@ stop_db:
 	docker-compose down
 
 migrate:
-	db-migrate up
+	db-migrate up -e dev
 
 rollback:
 	db-migrate down

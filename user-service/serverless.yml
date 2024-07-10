@@ -3,78 +3,152 @@ org: akatsuki777
 # "service" is the name of this project. This will also be added to your AWS resource names.
 service: user-service
 
-provider:
-    name: aws
-    runtime: nodejs20.x
-    versionFunctions: false
-    stage: dev
-    region: eu-central-1
-    httpApi:
-        cors: true
+useDotenv: true
 
-build:
-    esbuild: false
+provider:
+  name: aws
+  runtime: nodejs18.x
+  versionFunctions: false
+  stage: "dev"
+  region: eu-central-1
+  httpApi:
+    cors: true
+  # SNS Topic
+  environment:
+    # SNS_TOPIC: { Ref: CustomerTopic }  # FOR DEPLOYING LIVE
+    SNS_TOPIC: ${self:custom.snsTopic} # FOR LOCAL TESTING. REMOVE THIS FOR LIVE
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "sns:Publish"
+      Resource:
+        - !Ref CustomerTopic
+
+custom:
+  stage: "dev"
+  serverless-offline:
+    httpPort: 4000
+    lambdaPort: 4002
+  snsTopic: ${env:SNS_TOPIC} # FOR LOCAL TESTING. REMOVE THIS FOR LIVE
 
 functions:
-    signup:
-        handler: app/handler.Signup
-        events:
-            - httpApi:
-                  path: /signup
-                  method: post
-    login:
-        handler: app/handler.Login
-        events:
-            - httpApi:
-                  path: /login
-                  method: post
-    verify:
-        handler: app/handler.Verify
-        events:
-            - httpApi:
-                  path: /verify
-                  method: post
-            - httpApi:
-                  path: /verify
-                  method: get
-    profile:
-        handler: app/handler.Profile
-        events:
-            - httpApi:
-                  path: /user
-                  method: post
-            - httpApi:
-                  path: /user
-                  method: put
-            - httpApi:
-                  path: /user
-                  method: get
-    cart:
-        handler: app/handler.Cart
-        events:
-            - httpApi:
-                  path: /cart
-                  method: post
-            - httpApi:
-                  path: /cart
-                  method: put
-            - httpApi:
-                  path: /cart
-                  method: get
+  signup:
+    handler: dist/handler.SignUp
+    events:
+      - httpApi:
+          path: /signup
+          method: post
 
-    payment:
-        handler: app/handler.Payment
-        events:
-            - httpApi:
-                  path: /payment
-                  method: post
-            - httpApi:
-                  path: /payment
-                  method: put
-            - httpApi:
-                  path: /payment
-                  method: get
+  login:
+    handler: dist/handler.Login
+    events:
+      - httpApi:
+          path: /login
+          method: post
+
+  verify:
+    handler: dist/handler.Verify
+    events:
+      - httpApi:
+          path: /verify
+          method: post
+
+  get-verification-code:
+    handler: dist/handler.GetVerificationCode
+    events:
+      - httpApi:
+          path: /verify
+          method: get
+
+  create-profile:
+    handler: dist/handler.CreateProfile
+    events:
+      - httpApi:
+          path: /user
+          method: post
+
+  edit-profile:
+    handler: dist/handler.EditProfile
+    events:
+      - httpApi:
+          path: /user
+          method: put
+
+  get-profile:
+    handler: dist/handler.GetProfile
+    events:
+      - httpApi:
+          path: /user
+          method: get
+
+  # Cart Section
+  create-cart:
+    handler: dist/handler.CreateCart
+    timeout: 20
+    events:
+      - httpApi:
+          path: /cart
+          method: post
+
+  edit-cart:
+    handler: dist/handler.EditCart
+    timeout: 20
+    events:
+      - httpApi:
+          path: /cart/{id}
+          method: put
+
+  get-cart:
+    handler: dist/handler.GetCart
+    timeout: 20
+    events:
+      - httpApi:
+          path: /cart
+          method: get
+
+  delete-cart:
+    handler: dist/handler.DeleteCart
+    timeout: 20
+    events:
+      - httpApi:
+          path: /cart/{id}
+          method: delete
+
+  collect-payment:
+    handler: dist/handler.CollectPayment
+    timeout: 20
+    events:
+      - httpApi:
+          path: /collect-payment
+          method: post
+
+  place-order:
+    handler: dist/handler.PlaceOrder
+    timeout: 20
+    events:
+      - httpApi:
+          path: /order
+          method: post
 
 plugins:
-    - serverless-offline
-    - serverless-plugin-typescript
+  - serverless-offline
+  - serverless-plugin-optimize
+
+package:
+  individually: true
+
+resources:
+  Resources:
+    CustomerTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: "customer sns topic description"
+        TopicName: CustomerTopic
+
+  # output for later usages
+  Outputs:
+    CustomerTopicInfo:
+      Description: customer-topic
+      Value: !Ref CustomerTopic
+      Export:
+        Name: customer-topic
