@@ -3,18 +3,22 @@ import { IFunction } from "aws-cdk-lib/aws-lambda";
 import { Construct } from "constructs";
 import { aws_apigateway } from "aws-cdk-lib";
 
+import { ServiceInterface } from "./serviceInterface";
+
 interface ApiGatewayStackProps {
-	productsService: IFunction;
-	categoryService: IFunction;
-	dealsService: IFunction;
-	imageService: IFunction;
-	queueService: IFunction;
+	services: ServiceInterface;
+}
+
+type MethodType = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+
+interface Method {
+	methodType: MethodType;
+	handler: IFunction;
 }
 
 interface ResourceType {
 	name: string;
-	method: string[];
-	child?: ResourceType;
+	methods: Method[];
 }
 
 export class ApiGatewayStack extends Construct {
@@ -23,68 +27,135 @@ export class ApiGatewayStack extends Construct {
 		this.addResources("product", props);
 	}
 
-	addResources(
-		serviceName: string,
-		{
-			productsService,
-			categoryService,
-			dealsService,
-			imageService,
-			queueService,
-		}: ApiGatewayStackProps
-	) {
+	addResources(serviceName: string, { services }: ApiGatewayStackProps) {
 		const apgw = new aws_apigateway.RestApi(this, `${serviceName}-ApiGtw`);
 
-		this.createEndpoints(productsService, apgw, {
+		// Products Endpoints
+		const productResource = this.createEndpoints(apgw, {
 			name: "products",
-			method: ["GET", "POST"],
-			child: {
-				name: "{productsId}",
-				method: ["GET", "PUT", "DELETE"],
-			},
+			methods: [
+				{
+					methodType: "GET",
+					handler: services.getProducts,
+				},
+				{
+					methodType: "POST",
+					handler: services.createProduct,
+				},
+			],
 		});
 
-		this.createEndpoints(categoryService, apgw, {
+		this.addChildEndpoint(productResource, {
+			name: "{productsId}",
+			methods: [
+				{
+					methodType: "GET",
+					handler: services.getProduct,
+				},
+				{
+					methodType: "PUT",
+					handler: services.updateProduct,
+				},
+				{
+					methodType: "DELETE",
+					handler: services.deleteProduct,
+				},
+			],
+		});
+
+		this.createEndpoints(apgw, {
+			name: "seller-products",
+			methods: [
+				{
+					methodType: "GET",
+					handler: services.getSellerProducts,
+				},
+			],
+		});
+
+		// Category Endpoints
+		const categoryResource = this.createEndpoints(apgw, {
 			name: "category",
-			method: ["GET", "POST"],
-			child: {
-				name: "{categoryId}",
-				method: ["GET", "PUT", "DELETE"],
-			},
+			methods: [
+				{
+					methodType: "GET",
+					handler: services.getCategoryies,
+				},
+				{
+					methodType: "POST",
+					handler: services.createCategory,
+				},
+			],
 		});
 
-		this.createEndpoints(dealsService, apgw, {
+		this.addChildEndpoint(categoryResource, {
+			name: "{categoryId}",
+			methods: [
+				{
+					methodType: "GET",
+					handler: services.getCategory,
+				},
+				{
+					methodType: "PUT",
+					handler: services.updateCategory,
+				},
+				{
+					methodType: "DELETE",
+					handler: services.deleteCategory,
+				},
+			],
+		});
+
+		// Deals Endpoints
+		this.createEndpoints(apgw, {
 			name: "deals",
-			method: ["GET", "POST"],
-			child: {
-				name: "{dealsId}",
-				method: ["GET", "PUT", "DELETE"],
-			},
+			methods: [
+				{
+					methodType: "POST",
+					handler: services.createDeals,
+				},
+			],
 		});
 
-		this.createEndpoints(imageService, apgw, {
+		// Others Endpoints
+		this.createEndpoints(apgw, {
 			name: "uploader",
-			method: ["GET"],
+			methods: [
+				{
+					methodType: "GET",
+					handler: services.imageUploader,
+				},
+			],
 		});
 
-		this.createEndpoints(queueService, apgw, {
+		this.createEndpoints(apgw, {
 			name: "products-queue",
-			method: ["POST"],
+			methods: [
+				{
+					methodType: "POST",
+					handler: services.messageQueueHandler,
+				},
+			],
 		});
 	}
 
-	createEndpoints(handler: IFunction, resource: RestApi, { name, method, child }: ResourceType) {
-		const lambdaFunction = new LambdaIntegration(handler);
+	createEndpoints(resource: RestApi, { name, methods }: ResourceType) {
 		const rootResource = resource.root.addResource(name);
-		method.map((item) => {
-			rootResource.addMethod(item, lambdaFunction);
+		methods.map((item) => {
+			const lambdaFunction = new LambdaIntegration(item.handler);
+			rootResource.addMethod(item.methodType, lambdaFunction);
 		});
+		return rootResource;
+	}
 
-		if (child) {
-			const childResource = rootResource.addResource(child.name);
-			child.method.map((item) => {
-				childResource.addMethod(item, lambdaFunction);
-			});
-		}
+	addChildEndpoint(
+		rootResource: aws_apigateway.Resource,
+		{ name, methods }: ResourceType
+	) {
+		const childResource = rootResource.addResource(name);
+		methods.map((item) => {
+			const lambdaFunction = new LambdaIntegration(item.handler);
+			childResource.addMethod(item.methodType, lambdaFunction);
+		});
 	}
 }

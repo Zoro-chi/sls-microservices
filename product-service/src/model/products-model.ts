@@ -7,6 +7,7 @@ type ProductModel = {
 	price: number;
 	image_url: string;
 	availability: boolean;
+	seller_id: number;
 };
 
 export type ProductDoc = mongoose.Document & ProductModel;
@@ -19,6 +20,7 @@ const productSchema = new mongoose.Schema(
 		price: Number,
 		image_url: String,
 		availability: Boolean,
+		seller_id: Number,
 	},
 	{
 		toJSON: {
@@ -32,6 +34,8 @@ const productSchema = new mongoose.Schema(
 	}
 );
 
-const products = mongoose.models.products || mongoose.model<ProductDoc>("products", productSchema);
+const products =
+	mongoose.models.products ||
+	mongoose.model<ProductDoc>("products", productSchema);
 
 export { products };

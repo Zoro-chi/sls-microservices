@@ -17,4 +17,6 @@ export class ProductsInput {
 	price: number;
 
 	availability: boolean;
+
+	seller_id: number;
 }

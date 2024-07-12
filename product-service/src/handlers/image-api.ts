@@ -6,7 +6,7 @@ import { APIGatewayEvent, APIGatewayProxyResult, Context } from "aws-lambda";
 
 const s3Client = new S3Client({ region: "eu-central-1" });
 
-export const handler = async (
+export const imageUploader = async (
 	event: APIGatewayEvent,
 	context: Context
 ): Promise<APIGatewayProxyResult> => {

@@ -5,6 +5,7 @@ import { AppValidationError } from "../utility/error";
 import { CategoryInput } from "../dto/category-input";
 import { CategoryRepository } from "../repository/category-repository";
 import { ErrorResponse, SuccessResponse } from "../utility/response";
+import { AuthUser } from "../utility/auth";
 
 export class CategoryService {
 	_repository: CategoryRepository;
@@ -17,6 +18,17 @@ export class CategoryService {
 	}
 
 	async createCategory(event: APIGatewayEvent) {
+		// Validate User is an authorized seller
+		const token = event.headers.Authorization;
+		const user = await AuthUser(token);
+		if (!user) return ErrorResponse(403, "Authorization failed.");
+		if (user.user_type.toUpperCase() !== "SELLER") {
+			return ErrorResponse(
+				403,
+				"You need to join the seller program to create a category."
+			);
+		}
+
 		const body = JSON.parse(event.body!);
 		const input = plainToClass(CategoryInput, body);
 		const error = await AppValidationError(input);
@@ -42,11 +54,17 @@ export class CategoryService {
 		const offset = Number(event.queryStringParameters?.offset);
 		const perPage = Number(event.queryStringParameters?.perPage);
 		if (!categoryId) return ErrorResponse(400, "Category ID is required.");
-		const data = await this._repository.getCategoryById(categoryId, offset, perPage);
+		const data = await this._repository.getCategoryById(
+			categoryId,
+			offset,
+			perPage
+		);
 		return SuccessResponse(data);
 	}
 
 	async updateCategory(event: APIGatewayEvent) {
+		//TODO: Make it that only Admin can update category
+
 		const categoryId = event.pathParameters?.categoryId;
 		if (!categoryId) return ErrorResponse(400, "Category ID is required.");
 
@@ -62,6 +80,8 @@ export class CategoryService {
 	}
 
 	async deleteCategory(event: APIGatewayEvent) {
+		//TODO: Make it that only Admin can delete category
+
 		const categoryId = event.pathParameters?.categoryId;
 		if (!categoryId) return ErrorResponse(400, "Category ID is required.");
 		const data = await this._repository.deleteCategory(categoryId);

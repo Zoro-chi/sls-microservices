@@ -14,25 +14,15 @@ export class ProductServiceStack extends cdk.Stack {
 
 		const { bucket } = new S3BucketStack(this, "productImages");
 
-		const {
-			productsService,
-			categoryService,
-			dealsService,
-			imageService,
-			queueService,
-		} = new ServiceStack(this, "ProductService", {
+		const { services } = new ServiceStack(this, "ProductService", {
 			bucket: bucket.bucketName,
 			MONGO_URI: props?.MONGO_URI!,
 		});
 
-		bucket.grantReadWrite(imageService);
+		bucket.grantReadWrite(services.imageUploader);
 
 		new ApiGatewayStack(this, "ProductApiGateway", {
-			productsService,
-			categoryService,
-			dealsService,
-			imageService,
-			queueService,
+			services: services,
 		});
 	}
 }
