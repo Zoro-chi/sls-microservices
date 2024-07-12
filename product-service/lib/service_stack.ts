@@ -1,11 +1,15 @@
 import { Duration } from "aws-cdk-lib";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
-import { NodejsFunction, NodejsFunctionProps } from "aws-cdk-lib/aws-lambda-nodejs";
+import {
+	NodejsFunction,
+	NodejsFunctionProps,
+} from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
 import { join } from "path";
 
 interface ServiceProps {
 	bucket: string;
+	MONGO_URI: string;
 }
 
 export class ServiceStack extends Construct {
@@ -24,6 +28,7 @@ export class ServiceStack extends Construct {
 			},
 			environment: {
 				BUCKET_NAME: props.bucket,
+				MONGO_URI: props.MONGO_URI,
 			},
 			runtime: Runtime.NODEJS_18_X,
 			timeout: Duration.seconds(10),

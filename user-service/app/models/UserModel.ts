@@ -6,7 +6,7 @@ export interface UserModel {
 	password: string;
 	salt: string;
 	phone: string;
-	userType: "BUYER" | "SELLER";
+	user_type: "BUYER" | "SELLER";
 	first_name?: string;
 	last_name?: string;
 	profile_pic?: string;

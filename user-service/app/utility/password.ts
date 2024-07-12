@@ -20,14 +20,18 @@ export const ValidatePassword = async (
 	return (await GetHashPassword(enteredPassword, salt)) === savedPassword;
 };
 
-export const GetToken = ({ email, user_id, phone, userType }: UserModel) => {
-	return jwt.sign({ email, user_id, phone, userType }, APP_SECRET, { expiresIn: "30d" });
+export const GetToken = ({ email, user_id, phone, user_type }: UserModel) => {
+	return jwt.sign({ email, user_id, phone, user_type }, APP_SECRET, {
+		expiresIn: "30d",
+	});
 };
 
-export const VerifyToken = async (token: string): Promise<UserModel | false> => {
+export const VerifyToken = async (
+	token: string
+): Promise<UserModel | false> => {
 	try {
 		if (token !== "") {
-			const payload = await jwt.verify(token.split(" ")[1], APP_SECRET);
+			const payload = jwt.verify(token.split(" ")[1], APP_SECRET);
 			return payload as UserModel;
 		}
 		return false;

@@ -10,9 +10,6 @@ migrate:
 rollback:
 	db-migrate down
 
-create-transaction-files:
-	db-migrate create transactions --sql-file
-
 create-migration:
 	db-migrate create $(n) --sql-file
 

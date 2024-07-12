@@ -15,8 +15,7 @@ provider:
     cors: true
   # SNS Topic
   environment:
-    # SNS_TOPIC: { Ref: CustomerTopic }  # FOR DEPLOYING LIVE
-    SNS_TOPIC: ${self:custom.snsTopic} # FOR LOCAL TESTING. REMOVE THIS FOR LIVE
+    SNS_TOPIC: ${self:custom.snsTopic} #! FOR LOCAL TESTING. REMOVE THIS FOR LIVE
   iamRoleStatements:
     - Effect: "Allow"
       Action:
@@ -29,8 +28,9 @@ custom:
   serverless-offline:
     httpPort: 4000
     lambdaPort: 4002
-  snsTopic: ${env:SNS_TOPIC} # FOR LOCAL TESTING. REMOVE THIS FOR LIVE
+  snsTopic: ${env:SNS_TOPIC} #! FOR LOCAL TESTING. REMOVE THIS FOR LIVE
 
+#! When deploying to prod change dist --> app
 functions:
   signup:
     handler: dist/handler.SignUp
@@ -81,7 +81,6 @@ functions:
           path: /user
           method: get
 
-  # Cart Section
   create-cart:
     handler: dist/handler.CreateCart
     timeout: 20
@@ -130,6 +129,27 @@ functions:
           path: /order
           method: post
 
+  joinSellerProgram:
+    handler: dist/handler.JoinSellerProgram
+    events:
+      - httpApi:
+          path: /join
+          method: post
+
+  getPaymentMethod:
+    handler: dist/handler.GetPaymentMethod
+    events:
+      - httpApi:
+          path: /payment-methods
+          method: get
+
+  editPaymentMethod:
+    handler: dist/handler.EditPaymentMethod
+    events:
+      - httpApi:
+          path: /payment-methods/{id}
+          method: put
+
 plugins:
   - serverless-offline
   - serverless-plugin-optimize
@@ -145,7 +165,6 @@ resources:
         DisplayName: "customer sns topic description"
         TopicName: CustomerTopic
 
-  # output for later usages
   Outputs:
     CustomerTopicInfo:
       Description: customer-topic

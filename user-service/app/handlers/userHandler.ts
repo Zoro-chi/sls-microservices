@@ -1,4 +1,3 @@
-import { container } from "tsyringe";
 import { APIGatewayProxyEventV2 } from "aws-lambda";
 
 import { UserRepository } from "../repository/userRepository";

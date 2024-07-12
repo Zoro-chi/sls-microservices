@@ -9,7 +9,8 @@
 		"watch": "tsc -w",
 		"test": "jest",
 		"cdk": "cdk",
-		"dev": "cdk synth && sam local start-api -t cdk.out/ProductServiceStack.template.json"
+		"dev": "cdk synth && sam local start-api -t cdk.out/ProductServiceStack.template.json",
+		"deploy": "cdk deploy --verbose --trace"
 	},
 	"devDependencies": {
 		"@types/aws-lambda": "^8.10.140",

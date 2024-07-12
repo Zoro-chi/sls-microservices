@@ -46,10 +46,20 @@ export class UserService {
 				password: hashedPassword,
 				salt: salt,
 				phone: input.phone,
-				userType: "BUYER",
+				user_type: "BUYER",
 			});
 
-			return SuccessResponse(data);
+			const token = GetToken(data);
+
+			return SuccessResponse({
+				token,
+				email: data.email,
+				firstName: data.first_name,
+				lastName: data.last_name,
+				phone: data.phone,
+				userType: data.user_type,
+				_id: data.user_id,
+			});
 		} catch (error) {
 			console.log(error);
 			return ErrorResponse(500, error);
@@ -58,7 +68,6 @@ export class UserService {
 
 	async UserLogin(event: APIGatewayProxyEventV2) {
 		try {
-			console.log(process.env);
 			const body = await JSON.parse(event.body);
 
 			const input = plainToClass(LoginInput, body);
@@ -73,9 +82,17 @@ export class UserService {
 			);
 			if (!verified) throw new Error("Password is incorrect");
 
-			const token = await GetToken(data);
+			const token = GetToken(data);
 
-			return SuccessResponse({ token });
+			return SuccessResponse({
+				token,
+				email: data.email,
+				firstName: data.first_name,
+				lastName: data.last_name,
+				phone: data.phone,
+				userType: data.user_type,
+				_id: data.user_id,
+			});
 		} catch (error) {
 			console.log(error);
 			return ErrorResponse(500, error);
