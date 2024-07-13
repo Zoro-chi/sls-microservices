@@ -16,12 +16,15 @@ provider:
   # SNS Topic
   environment:
     SNS_TOPIC: ${self:custom.snsTopic} #! FOR LOCAL TESTING. REMOVE THIS FOR LIVE
+    NOTIFY_TOPIC:
+      "Fn::ImportValue": "notifySvcArn"
   iamRoleStatements:
     - Effect: "Allow"
       Action:
         - "sns:Publish"
       Resource:
         - !Ref CustomerTopic
+        - "Fn::ImportValue": "notifySvcArn"
 
 custom:
   stage: "dev"
@@ -33,56 +36,56 @@ custom:
 #! When deploying to prod change dist --> app
 functions:
   signup:
-    handler: dist/handler.SignUp
+    handler: app/handler.SignUp
     events:
       - httpApi:
           path: /signup
           method: post
 
   login:
-    handler: dist/handler.Login
+    handler: app/handler.Login
     events:
       - httpApi:
           path: /login
           method: post
 
   verify:
-    handler: dist/handler.Verify
+    handler: app/handler.Verify
     events:
       - httpApi:
           path: /verify
           method: post
 
   get-verification-code:
-    handler: dist/handler.GetVerificationCode
+    handler: app/handler.GetVerificationCode
     events:
       - httpApi:
           path: /verify
           method: get
 
   create-profile:
-    handler: dist/handler.CreateProfile
+    handler: app/handler.CreateProfile
     events:
       - httpApi:
           path: /user
           method: post
 
   edit-profile:
-    handler: dist/handler.EditProfile
+    handler: app/handler.EditProfile
     events:
       - httpApi:
           path: /user
           method: put
 
   get-profile:
-    handler: dist/handler.GetProfile
+    handler: app/handler.GetProfile
     events:
       - httpApi:
           path: /user
           method: get
 
   create-cart:
-    handler: dist/handler.CreateCart
+    handler: app/handler.CreateCart
     timeout: 20
     events:
       - httpApi:
@@ -90,7 +93,7 @@ functions:
           method: post
 
   edit-cart:
-    handler: dist/handler.EditCart
+    handler: app/handler.EditCart
     timeout: 20
     events:
       - httpApi:
@@ -98,7 +101,7 @@ functions:
           method: put
 
   get-cart:
-    handler: dist/handler.GetCart
+    handler: app/handler.GetCart
     timeout: 20
     events:
       - httpApi:
@@ -106,7 +109,7 @@ functions:
           method: get
 
   delete-cart:
-    handler: dist/handler.DeleteCart
+    handler: app/handler.DeleteCart
     timeout: 20
     events:
       - httpApi:
@@ -114,7 +117,7 @@ functions:
           method: delete
 
   collect-payment:
-    handler: dist/handler.CollectPayment
+    handler: app/handler.CollectPayment
     timeout: 20
     events:
       - httpApi:
@@ -122,7 +125,7 @@ functions:
           method: post
 
   place-order:
-    handler: dist/handler.PlaceOrder
+    handler: app/handler.PlaceOrder
     timeout: 20
     events:
       - httpApi:
@@ -130,21 +133,21 @@ functions:
           method: post
 
   joinSellerProgram:
-    handler: dist/handler.JoinSellerProgram
+    handler: app/handler.JoinSellerProgram
     events:
       - httpApi:
           path: /join
           method: post
 
   getPaymentMethod:
-    handler: dist/handler.GetPaymentMethod
+    handler: app/handler.GetPaymentMethod
     events:
       - httpApi:
           path: /payment-methods
           method: get
 
   editPaymentMethod:
-    handler: dist/handler.EditPaymentMethod
+    handler: app/handler.EditPaymentMethod
     events:
       - httpApi:
           path: /payment-methods/{id}

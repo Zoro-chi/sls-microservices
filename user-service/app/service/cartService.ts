@@ -20,6 +20,7 @@ import { CartInput, UpdateCartInput } from "../models/dto/CartInput";
 import { CartItemModel } from "../models/CartItemModel";
 import { PullData } from "../message-queue";
 import aws from "aws-sdk";
+import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
 import { UserRepository } from "../repository/userRepository";
 import {
 	APPLICATION_FEE,
@@ -284,6 +285,7 @@ export class CartService {
 					},
 				};
 
+				// Validate SNS_TOPIC ARN
 				if (
 					!process.env.SNS_TOPIC ||
 					process.env.SNS_TOPIC.split(":").length < 6
@@ -291,14 +293,20 @@ export class CartService {
 					return ErrorResponse(500, "Invalid SNS_TOPIC ARN");
 				}
 
-				const sns = new aws.SNS();
-				const response = await sns.publish(params).promise();
-				console.log(response);
-				console.log(JSON.stringify(params));
+				// Initialize SNS client
+				const snsClient = new SNSClient({ region: "eu-central-1" });
 
-				// update payment id = ""
-				// delete all cart items
-				return SuccessResponse({ msg: "success", paymentInfo });
+				// Publish message to SNS topic
+				const command = new PublishCommand(params);
+				const response = await snsClient.send(command);
+
+				console.log("SNS publish response:", response);
+
+				// Perform other actions like updating payment ID and deleting cart items
+				// Update payment id = ""
+				// Delete all cart items
+
+				return SuccessResponse({ msg: "Success", paymentInfo });
 			}
 
 			return ErrorResponse(503, new Error("payment failed!"));
