@@ -6,3 +6,6 @@
 
 A C2C backend E-commerce platform, built using microservices and serverless frameworks. 
 
+## Postman Link:
+https://documenter.getpostman.com/view/20529973/2sA3rwNaQN
+
