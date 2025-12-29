@@ -15,7 +15,8 @@ provider:
     cors: true
   # SNS Topic
   environment:
-    SNS_TOPIC: ${self:custom.snsTopic} #! FOR LOCAL TESTING. REMOVE THIS FOR LIVE
+    SNS_TOPIC: { Ref: CustomerTopic }
+    # SNS_TOPIC: ${self:custom.snsTopic} #! FOR LOCAL TESTING. REMOVE THIS FOR LIVE
     NOTIFY_TOPIC:
       "Fn::ImportValue": "notifySvcArn"
   iamRoleStatements:
@@ -31,7 +32,7 @@ custom:
   serverless-offline:
     httpPort: 4000
     lambdaPort: 4002
-  snsTopic: ${env:SNS_TOPIC} #! FOR LOCAL TESTING. REMOVE THIS FOR LIVE
+  # snsTopic: ${env:SNS_TOPIC} #! FOR LOCAL TESTING. REMOVE THIS FOR LIVE
 
 #! When deploying to prod change dist --> app
 functions:

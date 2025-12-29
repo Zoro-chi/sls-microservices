@@ -1,0 +1,39 @@
+openapi: 3.0.3
+info:
+  title: Notification Service API
+  version: 0.1.0
+  description: Send transactional emails and SMS.
+servers:
+  - url: https://api.example.com/notifications
+paths:
+  /notify/email:
+    post:
+      summary: Send an email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to: { type: string }
+                subject: { type: string }
+                html: { type: string }
+      responses:
+        "202":
+          description: Accepted
+  /notify/sms:
+    post:
+      summary: Send an SMS
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to: { type: string }
+                message: { type: string }
+      responses:
+        "202":
+          description: Accepted

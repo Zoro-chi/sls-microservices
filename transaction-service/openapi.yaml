@@ -1,0 +1,55 @@
+openapi: 3.0.3
+info:
+  title: Transaction Service API
+  version: 0.1.0
+  description: Manage orders/transactions and their lifecycle.
+servers:
+  - url: https://api.example.com/transactions
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /transactions:
+    get:
+      security: [{ bearerAuth: [] }]
+      summary: List transactions
+      responses:
+        "200":
+          description: OK
+    post:
+      security: [{ bearerAuth: [] }]
+      summary: Create transaction (place order)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      productId: { type: string }
+                      quantity: { type: integer }
+                paymentMethodId: { type: string }
+      responses:
+        "201":
+          description: Created
+  /transactions/{id}:
+    get:
+      security: [{ bearerAuth: [] }]
+      summary: Get transaction by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK

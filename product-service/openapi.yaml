@@ -1,0 +1,123 @@
+openapi: 3.0.3
+info:
+  title: Product Service API
+  version: 0.1.0
+  description: Basic endpoints for products, categories, and image uploads.
+servers:
+  - url: https://api.example.com/products
+paths:
+  /products:
+    get:
+      summary: List products
+      responses:
+        "200":
+          description: OK
+    post:
+      summary: Create product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+      responses:
+        "201":
+          description: Created
+  /products/{id}:
+    get:
+      summary: Get product by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+    put:
+      summary: Update product
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+      responses:
+        "200":
+          description: Updated
+    delete:
+      summary: Delete product
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+  /categories:
+    get:
+      summary: List categories
+      responses:
+        "200":
+          description: OK
+    post:
+      summary: Create category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryInput"
+      responses:
+        "201":
+          description: Created
+  /images/presign:
+    post:
+      summary: Get S3 presigned URL for image upload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fileName:
+                  type: string
+                contentType:
+                  type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                  fields:
+                    type: object
+components:
+  schemas:
+    ProductInput:
+      type: object
+      properties:
+        name: { type: string }
+        price: { type: number }
+        description: { type: string }
+        categoryId: { type: string }
+      required: [name, price]
+    CategoryInput:
+      type: object
+      properties:
+        name: { type: string }
+      required: [name]
